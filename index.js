@@ -66,12 +66,12 @@ app.get("/updateDatabase", (req, globalres) => {
               connection.query(query, [values], (err, result) => {
                 if (!err) {
                 } else {
-                  globalres.send("err occured  " + err);
+                  console.log("error occured while inserting the data");
                 }
               });
             })
             .catch((err) => {
-              globalres.send("there is an error fething the details " + err);
+              console.log("err fetching the data");
             });
 
           globalres.send("updated all the catagory sucessfully");
@@ -97,17 +97,17 @@ app.get("/updateDatabase", (req, globalres) => {
               connection.query(query, [values], (err, result) => {
                 if (!err) {
                 } else {
-                  globalres.send("err occured  " + err);
+                  console.log("error occured while inserting the data");
                 }
               });
             })
             .catch((err) => {
-              globalres.send("there is an error fething the details " + err);
+              console.log("error occured whilefetching the data ");
             });
         }
       }
     } else {
-      globalres.send("error deleting the existing data");
+      globalres.send("error nothing changed ");
     }
   });
 });
