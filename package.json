@@ -1,0 +1,31 @@
+{
+  "name": "wallpaper-server",
+  "version": "1.0.0",
+  "description": "temporary server for wallpaper app",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rashidekbal/Wallpaper_Server_Temp.git"
+  },
+  "keywords": [
+    "wallvibe_server"
+  ],
+  "author": "rasid ekbal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rashidekbal/Wallpaper_Server_Temp/issues"
+  },
+  "homepage": "https://github.com/rashidekbal/Wallpaper_Server_Temp#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
