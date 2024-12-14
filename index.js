@@ -1,10 +1,12 @@
 import express, { json } from "express";
 import "dotenv/config";
 import { connection } from "./db/db_connection.js";
+import cors from "cors";
 
 const port = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
+app.use(cors({ origin: "*" }));
 
 app.get("/", (req, res) => {
   res.send("server is up and running");
