@@ -1,0 +1,16 @@
+db code 
+
+create table links (
+      sn int AUTO_INCREMENT primary key,
+      id int not null,
+      tags varchar(500) not null,
+      previewLink varchar(500) not null,
+      previewHeight int not null,
+      previewWidth int not null,
+      largeImage varchar(500),
+      largeHeight int not null,
+      largeWidth int not null,
+      ref varchar(250) not null,
+      serImage varchar(250) not null
+      
+);

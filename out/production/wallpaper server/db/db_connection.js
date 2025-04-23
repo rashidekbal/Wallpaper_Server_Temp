@@ -10,4 +10,4 @@ const connection = mysql.createConnection({
   password: pass,
   database: db,
 });
-export default connection;
+export { connection };
