@@ -4,7 +4,9 @@ const api = express.Router();
 api.get("/link", (req, res) => {
   const q = req.query.q;
   const page = req.query.page;
-  const query = `SELECT * FROM links WHERE FIND_IN_SET('${q}',Lower(tags))`;
+  const query = q
+    ? `SELECT * FROM links WHERE FIND_IN_SET('${q}',Lower(tags))`
+    : `SELECT * FROM links limit 100`;
   connection.query(query, (err, result) => {
     if (!err) {
       res.send(result);
