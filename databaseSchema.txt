@@ -2,7 +2,7 @@ db code
 
 create table links (
       sn int AUTO_INCREMENT primary key,
-      id int not null,
+      id int not null unique,
       tags varchar(500) not null,
       previewLink varchar(500) not null,
       previewHeight int not null,
@@ -11,6 +11,15 @@ create table links (
       largeHeight int not null,
       largeWidth int not null,
       ref varchar(250) not null,
-      serImage varchar(250) not null
+      userImage varchar(250) not null
       
 );
+
+
+dark
+nature 
+space
+mountains
+roads
+puppies
+lion
