@@ -91,5 +91,6 @@ router.post("/updateList", (req, res) => {
       });
     }
   });
+  res.send("something went wrong");
 });
 export default router;
