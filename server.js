@@ -10,6 +10,9 @@ app.use(express.json());
 app.use(cors({ origin: "*" }));
 app.use("/update", update);
 app.use("/api", api);
+app.get("/", (req, res) => {
+  res.send("working route");
+});
 connection.connect((err, res) => {
   if (err) {
     console.log(err);
