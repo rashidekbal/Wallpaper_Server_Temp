@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.post("/addData", (req, res) => {
   let api = req.body.api;
+  let category = req.body.category;
+  let image_link;
   axios
     .get(api)
     .then((response) => {
@@ -30,9 +32,16 @@ router.post("/addData", (req, res) => {
       });
       let query =
         "INSERT INTO links (id,	tags,previewLink,previewHeight,previewWidth,largeImage,largeHeight,largeWidth,ref,userImage) VALUES ?";
+      image_link = array[0].webformatURL;
+
       connection.query(query, [values], (dberr, dbres) => {
         if (!dberr) {
-          res.send(dbres.info);
+          connection.query(
+            `insert into category (name,image) VALUES ('${category}', '${image_link}')`,
+            (err, result) => {
+              res.send("sucess");
+            }
+          );
         } else {
           res.send(dberr.sqlMessage);
         }
@@ -51,7 +60,7 @@ router.post("/updateList", (req, res) => {
         if (!err) {
           let list_of_category = result;
           for (let i = 0; i < list_of_category.length; i++) {
-            link = `${link}?q=${list_of_category[i]}`;
+            link = `${link}?q=${list_of_category[i].name}`;
             axios
               .get(link)
               .then((response) => {
