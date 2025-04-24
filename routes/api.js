@@ -15,4 +15,14 @@ api.get("/link", (req, res) => {
     }
   });
 });
+api.get("/category", (req, res) => {
+  const q = "select * from category";
+  connection.query(q, (err, result) => {
+    if (!err) {
+      res.send(result);
+    } else {
+      res.send(err);
+    }
+  });
+});
 export default api;
