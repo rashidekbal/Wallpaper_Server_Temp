@@ -1,13 +1,10 @@
 import express from "express";
 import connection from "../db/db_connection.js";
 const api = express.Router();
-api.get("/link", (req, res) => {
-  const q = req.query.q;
-  const page = req.query.page;
-  const query = q
-    ? `SELECT * FROM links WHERE FIND_IN_SET('${q}',Lower(tags))`
-    : `SELECT * FROM links limit 100`;
-  connection.query(query, (err, result) => {
+
+api.get("/category", (req, res) => {
+  const q = "select * from category";
+  connection.query(q, (err, result) => {
     if (!err) {
       res.send(result);
     } else {
@@ -15,9 +12,20 @@ api.get("/link", (req, res) => {
     }
   });
 });
-api.get("/category", (req, res) => {
-  const q = "select * from category";
-  connection.query(q, (err, result) => {
+
+api.get("/links", (req, res) => {
+  let q = req.query.q;
+  q.toLowerCase();
+
+  let query = `Select * from links where find_in_set(${q},tags)`;
+  if (q.split(" ").length) {
+    q = q.split(" ");
+    query = `Select *from links where find_in_set('${q[0]}',tags)`;
+    for (let i = 1; i < q.length; i++) {
+      query = query + `or find_in_set('${q[i]}',tags)`;
+    }
+  }
+  connection.query(query, (err, result) => {
     if (!err) {
       res.send(result);
     } else {
