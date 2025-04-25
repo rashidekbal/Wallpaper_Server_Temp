@@ -5,6 +5,7 @@ import "dotenv/config";
 const router = express.Router();
 let api = process.env.API;
 
+// Route to add data by single category
 router.get("/addData", async (req, res) => {
   let flag = req.query.flag;
   let category = req.query.q;
@@ -13,21 +14,17 @@ router.get("/addData", async (req, res) => {
   let link = `${api}&q=${category}&page=${page}`;
 
   try {
-    // First get the IDs from the database
     const idsOnserver = await getIds();
 
-    // Fetch data from external API after IDs are fetched
     const { data } = await axios.get(link);
     let array = data.hits;
     image_link = array[0].webformatURL;
 
-    // Filter the array based on IDs not present in the server
     array = array.filter((item) => !idsOnserver.includes(item.id));
 
-    // Map the data to the desired format
     const value = array.map((item) => {
       let arrayoftags = item.tags.split(" ");
-      let tag = arrayoftags.join(""); // Join tags without spaces
+      let tag = arrayoftags.join("");
       return [
         parseInt(item.id),
         tag,
@@ -42,12 +39,10 @@ router.get("/addData", async (req, res) => {
       ];
     });
 
-    // Insert category into the database if flag is true
     if (flag == 1) {
-      await insertCategory(category, image_link); // Insert category if flag is present
+      await insertCategory(category, image_link);
     }
 
-    // Insert links into the database
     const insertResult = await insertLinks(value);
     res.json({ result: insertResult });
   } catch (err) {
@@ -55,6 +50,8 @@ router.get("/addData", async (req, res) => {
     res.status(500).json({ result: "Internal Server Error" });
   }
 });
+
+// Route to refresh all category data
 router.get("/refreshAllData", async (req, res) => {
   try {
     const categories = await new Promise((resolve, reject) => {
@@ -66,10 +63,22 @@ router.get("/refreshAllData", async (req, res) => {
 
     let value = [];
 
-    // Step 1: Fetch all data from all categories
     for (let cat of categories) {
       const link = `${api}&q=${cat}&page=1`;
       const { data } = await axios.get(link);
+
+      // 💥 Update image for category
+      const imageLink = data.hits[0]?.webformatURL || "";
+      await new Promise((resolve, reject) => {
+        connection.query(
+          `UPDATE category SET image = ? WHERE name = ?`,
+          [imageLink, cat],
+          (err) => {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
 
       const result = data.hits.map((item) => {
         const tag = item.tags.split(" ").join("");
@@ -93,7 +102,6 @@ router.get("/refreshAllData", async (req, res) => {
       value.push(...result);
     }
 
-    // Step 2: Remove duplicate by ID
     const seen = new Set();
     const finalValues = value
       .filter((obj) => {
@@ -103,7 +111,6 @@ router.get("/refreshAllData", async (req, res) => {
       })
       .map((obj) => obj.data);
 
-    // Step 3: Clear table
     await new Promise((resolve, reject) => {
       connection.query("DELETE FROM links", (err) => {
         if (err) reject(err);
@@ -111,7 +118,6 @@ router.get("/refreshAllData", async (req, res) => {
       });
     });
 
-    // Step 4: Insert final unique values
     if (finalValues.length > 0) {
       await new Promise((resolve, reject) => {
         connection.query(
@@ -129,7 +135,7 @@ router.get("/refreshAllData", async (req, res) => {
 
     res.json({
       result:
-        "✅ All categories fetched, duplicates removed, data inserted successfully!",
+        "✅ All categories refreshed with new images and data inserted 🎯",
     });
   } catch (err) {
     console.error("💥 Error:", err);
@@ -139,48 +145,39 @@ router.get("/refreshAllData", async (req, res) => {
   }
 });
 
-// Function to get IDs from the database
+// Helpers
 async function getIds() {
   return new Promise((resolve, reject) => {
     connection.query("SELECT id FROM links", (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        const ids = result.map((item) => item.id);
-        resolve(ids); // Return array of ids
-      }
+      if (err) reject(err);
+      else resolve(result.map((item) => item.id));
     });
   });
 }
 
-// Function to insert category into the database
 async function insertCategory(category, image_link) {
   return new Promise((resolve, reject) => {
     connection.query(
-      `INSERT INTO category (name, image) VALUES ('${category}', '${image_link}')`,
-      (err, result) => {
-        if (err) {
-          reject("Failed adding category");
-        } else {
-          resolve("Category added successfully");
-        }
+      `INSERT INTO category (name, image) VALUES (?, ?)`,
+      [category, image_link],
+      (err) => {
+        if (err) reject("Failed adding category");
+        else resolve("Category added");
       }
     );
   });
 }
 
-// Function to insert links into the database
 async function insertLinks(value) {
   return new Promise((resolve, reject) => {
     connection.query(
-      "INSERT INTO links (id, tags, previewLink, previewHeight, previewWidth, largeImage, largeHeight, largeWidth, ref, userImage) VALUES ?",
+      `INSERT INTO links 
+      (id, tags, previewLink, previewHeight, previewWidth, largeImage, largeHeight, largeWidth, ref, userImage) 
+      VALUES ?`,
       [value],
-      (err, result) => {
-        if (err) {
-          reject("Failed inserting data into links");
-        } else {
-          resolve("Data inserted successfully");
-        }
+      (err) => {
+        if (err) reject("Failed inserting data");
+        else resolve("Data inserted");
       }
     );
   });
