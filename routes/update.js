@@ -49,10 +49,10 @@ router.get("/addData", async (req, res) => {
 
     // Insert links into the database
     const insertResult = await insertLinks(value);
-    res.send(insertResult);
+    res.json({ result: insertResult });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ result: "Internal Server Error" });
   }
 });
 router.get("/refreshAllData", async (req, res) => {
@@ -127,12 +127,15 @@ router.get("/refreshAllData", async (req, res) => {
       });
     }
 
-    res.send(
-      "✅ All categories fetched, duplicates removed, data inserted successfully!"
-    );
+    res.json({
+      result:
+        "✅ All categories fetched, duplicates removed, data inserted successfully!",
+    });
   } catch (err) {
     console.error("💥 Error:", err);
-    res.status(500).send("😓 Error occurred while refreshing data!");
+    res
+      .status(500)
+      .json({ result: "😓 Error occurred while refreshing data!" });
   }
 });
 
